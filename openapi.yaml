@@ -1,0 +1,77 @@
+openapi: 3.1.0
+info:
+  title: Mes tâches
+  version: 1.0.0
+servers:
+  - url: https://VOTRE-DOMAINE.example
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+  schemas:
+    TaskInput:
+      type: object
+      properties:
+        title: {type: string}
+        notes: {type: string}
+        category: {type: string, enum: [Travail, Maison, Personnel, Autre]}
+        priority: {type: string, enum: [Normale, Haute, Urgente]}
+        due: {type: string, description: 'Date YYYY-MM-DD'}
+        done: {type: boolean}
+security:
+  - bearerAuth: []
+paths:
+  /api/tasks:
+    get:
+      operationId: listTasks
+      summary: Liste les tâches
+      responses:
+        '200':
+          description: Liste des tâches
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {type: object, additionalProperties: true}
+    post:
+      operationId: createTask
+      summary: Ajoute une tâche
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '#/components/schemas/TaskInput'
+                - type: object
+                  required: [title]
+      responses:
+        '201': {description: Tâche créée}
+  /api/tasks/{id}:
+    patch:
+      operationId: updateTask
+      summary: Modifie une tâche
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string}
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TaskInput'
+      responses:
+        '200': {description: Tâche modifiée}
+    delete:
+      operationId: deleteTask
+      summary: Supprime une tâche
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: {type: string}
+      responses:
+        '204': {description: Tâche supprimée}
